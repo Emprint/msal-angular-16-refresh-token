@@ -3,6 +3,7 @@ import { MsalService, MsalBroadcastService, MSAL_GUARD_CONFIG, MsalGuardConfigur
 import { AuthenticationResult, InteractionStatus, PopupRequest, RedirectRequest, EventMessage, EventType } from '@azure/msal-browser';
 import { Subject } from 'rxjs';
 import { filter, takeUntil } from 'rxjs/operators';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-root',
@@ -99,6 +100,17 @@ export class AppComponent implements OnInit, OnDestroy {
     } else {
       this.authService.logoutRedirect();
     }
+  }
+
+  refreshToken() {
+    return this.authService
+      .acquireTokenSilent({
+        scopes: [...environment.apiConfig.scopes],
+        forceRefresh: true,
+        refreshTokenExpirationOffsetSeconds: 24 * 60 * 60 // Ensures that token is always extended by 24 hours when online
+      }).subscribe(result => {
+        console.log('Refresh Token Result', result);
+      })
   }
 
   ngOnDestroy(): void {
